@@ -1045,7 +1045,8 @@ NumericLiteralParser::NumericLiteralParser(StringRef TokSpelling,
 
       if ((s + 3 < ThisTokEnd) && Target.hasFullBFloat16Type()) {
         StringRef suffix(s, 4);
-        if (suffix == "bf16" || suffix == "BF16") {
+        // Only accept exact "bf16" or "BF16", not mixed-case variants
+        if (suffix.compare("bf16") == 0 || suffix.compare("BF16") == 0) {
           s += 3;
           isBFloat16 = true;
           continue;
