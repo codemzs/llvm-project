@@ -39,4 +39,3 @@ int test2 = f_2(float16_val);
 //CHECK-NEXT: DeclRefExpr {{.*}} 'int (long double)' lvalue Function {{.*}} 'f_2' 'int (long double)'
 //CHECK-NEXT: ImplicitCastExpr {{.*}} 'long double' <FloatingCast>
 //CHECK-NEXT: ImplicitCastExpr {{.*}} '_Float16' <LValueToRValue>
-

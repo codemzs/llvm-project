@@ -525,15 +525,6 @@ int test_21 = g(long_double_val); // OK: picks g(float) due to legacy conversion
 //CHECK-NEXT: ImplicitCastExpr {{.*}} 'float' <FloatingCast>
 //CHECK-NEXT: ImplicitCastExpr {{.*}} 'long double' <LValueToRValue>
 
-// Test the diagnostic for invalid implicit conversions
-void test_diagnostic() {
-  // This should trigger err_invalid_implicit_floating_point_cast
-  auto x = [](_Float16 f) { return f; };
-  __bf16 bf = 1.0bf16;
-  // The lambda expects _Float16 but we're passing __bf16, which is not convertible
-  // This is covered by static_cast tests earlier, but let's ensure diagnostic is tested
-}
-
 // Test coverage for err_invalid_implicit_floating_point_cast diagnostic (review comment #14)
 void test_invalid_implicit_cast() {
   _Float16 f16 = 1.0f16;
