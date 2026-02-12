@@ -503,3 +503,45 @@ int test_19 = f_5(0, bf16_val, float16_val, float_val, double_val, long_double_v
 //CHECK-NEXT: DeclRefExpr {{.*}} 'long double' lvalue Var {{.*}} 'long_double_val' 'long double'
 //CHECK-NEXT: ImplicitCastExpr {{.*}} 'int' <LValueToRValue>
 //CHECK-NEXT: DeclRefExpr {{.*}} 'int' lvalue Var {{.*}} 'int_val' 'int'
+
+// Additional overload resolution tests (review comment #13)
+
+// Test 1: Verify that f_1(long_double_val) is ambiguous
+int test_20 = f_1(long_double_val); // expected-error {{call to 'f_1' is ambiguous}}
+// expected-note@299 {{candidate function}}
+// expected-note@300 {{candidate function}}
+
+// Test 2: Overload resolution with int g(float); int g(_Float16);
+// g(long_double_val) should pick float because _Float16 isn't viable
+// for long double, but float is viable due to legacy rules
+int g(float) { return 1; }
+int g(_Float16) { return 2; } // expected-note {{candidate function not viable: no known conversion from 'long double' to '_Float16' for 1st argument}}
+
+int test_21 = g(long_double_val); // OK: picks g(float) due to legacy conversion rules
+//CHECK:      VarDecl {{.*}} test_21 'int' cinit
+//CHECK-NEXT: CallExpr {{.*}} 'int'
+//CHECK-NEXT: ImplicitCastExpr {{.*}} 'int (*)(float)' <FunctionToPointerDecay>
+//CHECK-NEXT: DeclRefExpr {{.*}} 'int (float)' lvalue Function {{.*}} 'g' 'int (float)'
+//CHECK-NEXT: ImplicitCastExpr {{.*}} 'float' <FloatingCast>
+//CHECK-NEXT: ImplicitCastExpr {{.*}} 'long double' <LValueToRValue>
+
+// Test coverage for err_invalid_implicit_floating_point_cast diagnostic (review comment #14)
+void test_invalid_implicit_cast() {
+  _Float16 f16 = 1.0f16;
+  __bf16 bf16 = 1.0bf16;
+  
+  // These should trigger the diagnostic because:
+  // 1. Both are extended FP types
+  // 2. The conversion is implicit (in function call or initialization)
+  // 3. The target type has smaller or unordered rank
+  
+  // Helper function to test implicit conversion
+  void take_bf16(__bf16);
+  void take_f16(_Float16);
+  
+  // _Float16 cannot be implicitly converted to __bf16 (unordered ranks)
+  take_bf16(f16); // expected-error {{floating-point type '_Float16' cannot be implicitly converted to type '__bf16' in implicit conversion}}
+  
+  // __bf16 cannot be implicitly converted to _Float16 (unordered ranks)
+  take_f16(bf16); // expected-error {{floating-point type '__bf16' cannot be implicitly converted to type '_Float16' in implicit conversion}}
+}

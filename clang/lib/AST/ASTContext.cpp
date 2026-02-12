@@ -133,26 +133,14 @@ template <> struct llvm::DenseMapInfo<llvm::FoldingSetNodeID> {
     return LHS == RHS;
   }
 };
-constexpr unsigned CXX23FloatRankToIndex(clang::BuiltinType::Kind Kind) {
-  switch (Kind) {
-  case clang::BuiltinType::Float16:
-    return 0;
-  case clang::BuiltinType::BFloat16:
-    return 1;
-  case clang::BuiltinType::Float:
-    return 2;
-  case clang::BuiltinType::Double:
-    return 3;
-  case clang::BuiltinType::LongDouble:
-    return 4;
-  default:
-    // Both __float128 and __ibm128 are compiler extensions, not extended floating points.
-    // __float128 also predates the invention of floating-point types.
-    llvm_unreachable("Not a CXX23+ floating point builtin type");
-  }
-}
-
 // C++23 6.8.6p2 [conv.rank]
+// Comparison of floating-point conversion ranks.
+// Per C++23, the conversion rank is used to determine viable implicit conversions
+// between extended floating-point types. Note that C and C++ have different rules
+// for extended floating-point types: C allows implicit conversions between any
+// floating-point types, while C++ restricts implicit conversions based on
+// conversion rank (a type can only be implicitly converted to another type with
+// equal or greater rank, unless it's to a standard floating-point type).
 FloatConvRankCompareResult
 CXX23CompareFpConversionRanks(BuiltinType::Kind LHSKind,
                               BuiltinType::Kind RHSKind, QualType LHS,

@@ -9854,8 +9854,10 @@ public:
   bool IsIntegralPromotion(Expr *From, QualType FromType, QualType ToType);
 
   /// IsFloatingPointPromotion - Determines whether the conversion from
-  /// FromType to ToType is a floating point promotion (C++ 4.6). If so,
-  /// returns true and sets PromotedType to the promoted type.
+  /// FromType to ToType is a floating point promotion (C++ 4.6).
+  /// \param FromType The source type of the conversion.
+  /// \param ToType The target type of the conversion.
+  /// \returns true if this is a floating-point promotion, false otherwise.
   bool IsFloatingPointPromotion(QualType FromType, QualType ToType);
 
   /// Determine if a conversion is a complex promotion.
