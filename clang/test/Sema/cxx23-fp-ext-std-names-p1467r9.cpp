@@ -533,3 +533,24 @@ void test_diagnostic() {
   // The lambda expects _Float16 but we're passing __bf16, which is not convertible
   // This is covered by static_cast tests earlier, but let's ensure diagnostic is tested
 }
+
+// Test coverage for err_invalid_implicit_floating_point_cast diagnostic (review comment #14)
+void test_invalid_implicit_cast() {
+  _Float16 f16 = 1.0f16;
+  __bf16 bf16 = 1.0bf16;
+  
+  // These should trigger the diagnostic because:
+  // 1. Both are extended FP types
+  // 2. The conversion is implicit (in function call or initialization)
+  // 3. The target type has smaller or unordered rank
+  
+  // Helper function to test implicit conversion
+  void take_bf16(__bf16);
+  void take_f16(_Float16);
+  
+  // _Float16 cannot be implicitly converted to __bf16 (unordered ranks)
+  take_bf16(f16); // expected-error {{floating-point type '_Float16' cannot be implicitly converted to type '__bf16' in implicit conversion}}
+  
+  // __bf16 cannot be implicitly converted to _Float16 (unordered ranks)
+  take_f16(bf16); // expected-error {{floating-point type '__bf16' cannot be implicitly converted to type '_Float16' in implicit conversion}}
+}

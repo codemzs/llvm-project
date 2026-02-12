@@ -1141,7 +1141,9 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
     break;
   case DeclSpec::TST_half:    Result = Context.HalfTy; break;
   case DeclSpec::TST_BFloat16:
-    if (!S.Context.getTargetInfo().hasBFloat16Type() &&
+    // BFloat16 extended FP type support requires full BFloat16 support
+    // (arithmetic operations), not just the type existence
+    if (!S.Context.getTargetInfo().hasFullBFloat16Type() &&
         !(S.getLangOpts().OpenMP && S.getLangOpts().OpenMPIsTargetDevice) &&
         !S.getLangOpts().SYCLIsDevice)
       S.Diag(DS.getTypeSpecTypeLoc(), diag::err_type_unsupported) << "__bf16";

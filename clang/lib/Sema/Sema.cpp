@@ -2059,7 +2059,7 @@ void Sema::checkTypeSupport(QualType Ty, SourceLocation Loc, ValueDecl *D) {
         (Ty->isIbm128Type() && !Context.getTargetInfo().hasIbm128Type()) ||
         (Ty->isIntegerType() && Context.getTypeSize(Ty) == 128 &&
          !Context.getTargetInfo().hasInt128Type()) ||
-        (Ty->isBFloat16Type() && !Context.getTargetInfo().hasBFloat16Type() &&
+        (Ty->isBFloat16Type() && !Context.getTargetInfo().hasFullBFloat16Type() &&
          !LangOpts.CUDAIsDevice) ||
         LongDoubleMismatched) {
       PartialDiagnostic PD = PDiag(diag::err_target_unsupported_type);
